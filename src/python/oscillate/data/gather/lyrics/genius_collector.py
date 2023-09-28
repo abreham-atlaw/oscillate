@@ -11,4 +11,4 @@ class GeniusCollector(LyricsCollector):
 
 	def collect_lyrics(self, title: str, artist: str) -> str:
 		song = self.__genius.search_song(title, artist)
-		return song.lyrics
+		return "\n".join(song.lyrics.split("\n")[1:])
