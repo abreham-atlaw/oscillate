@@ -22,7 +22,8 @@ class DatasetCollector:
 			header_artist: str = "artist",
 			skip_lyrics: bool = False,
 			skip_audio: bool = False,
-			skip_metadata: bool = False
+			skip_metadata: bool = False,
+			checkpoint: int = 1000
 	):
 		self.__out_path = out_path
 		self.__audio_path = os.path.join(self.__out_path, audio_dir)
@@ -47,6 +48,11 @@ class DatasetCollector:
 		self.__metadata_collector = DataProviders.provide_metadata_collector()
 		self.__audio_collector.set_outpath(self.__audio_path)
 		self.__skip_lyrics, self.__skip_audio, self.__skip_metadata = skip_lyrics, skip_audio, skip_metadata
+		self.__checkpoint = checkpoint
+
+	def __save(self, df: pd.DataFrame):
+		print("[+]Saving...")
+		df.to_csv(self.__csv_path)
 
 	def collect_datapoint(self, track: Track) -> typing.Tuple[str, str, MetaData]:
 		if self.__skip_audio:
@@ -83,9 +89,11 @@ class DatasetCollector:
 				lyrics
 			]
 			print(f"[+]Collected: {100*(i+1)/len(tracks): .2f}%...")
+			if (i - 1) % self.__checkpoint == 0 and i != 1:
+				self.__save(df)
 
-		print("[+]Saving...")
-		df.to_csv(self.__csv_path)
+		self.__save(df)
+
 
 	def collect_from_df(self, df: pd.DataFrame, header_title: str = "title", header_artist: str = "artist"):
 		tracks = []

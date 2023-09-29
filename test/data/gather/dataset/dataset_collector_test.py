@@ -11,9 +11,9 @@ class DatasetCollectorTest(unittest.TestCase):
 		collector = DatasetCollector(
 			"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/collected",
 			skip_audio=True,
-			skip_lyrics=True
+			skip_metadata=True,
 		)
-		df = pd.read_csv("/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/charts-20.csv")
+		df = pd.read_csv("/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/charts-1k.csv")
 		collector.collect_from_df(
 			df,
 			header_title="song"
