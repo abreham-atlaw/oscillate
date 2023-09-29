@@ -10,6 +10,8 @@ class DatasetCollectorTest(unittest.TestCase):
 	def test_functionality(self):
 		collector = DatasetCollector(
 			"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/collected",
+			skip_audio=True,
+			skip_lyrics=True
 		)
 		df = pd.read_csv("/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/charts-20.csv")
 		collector.collect_from_df(

@@ -20,6 +20,9 @@ class DatasetCollector:
 			header_genre: str = "genre",
 			header_title: str = "title",
 			header_artist: str = "artist",
+			skip_lyrics: bool = False,
+			skip_audio: bool = False,
+			skip_metadata: bool = False
 	):
 		self.__out_path = out_path
 		self.__audio_path = os.path.join(self.__out_path, audio_dir)
@@ -43,11 +46,23 @@ class DatasetCollector:
 		self.__lyrics_collector = DataProviders.provide_lyrics_collector()
 		self.__metadata_collector = DataProviders.provide_metadata_collector()
 		self.__audio_collector.set_outpath(self.__audio_path)
+		self.__skip_lyrics, self.__skip_audio, self.__skip_metadata = skip_lyrics, skip_audio, skip_metadata
 
 	def collect_datapoint(self, track: Track) -> typing.Tuple[str, str, MetaData]:
-		audio = self.__audio_collector.collect_audio(track.title, track.artist)
-		lyrics = self.__lyrics_collector.collect_lyrics(track.title, track.artist)
-		metadata = self.__metadata_collector.collect_metadata(track.title, track.artist)
+		if self.__skip_audio:
+			audio = ""
+		else:
+			audio = self.__audio_collector.collect_audio(track.title, track.artist)
+
+		if self.__skip_lyrics:
+			lyrics = ""
+		else:
+			lyrics = self.__lyrics_collector.collect_lyrics(track.title, track.artist)
+
+		if self.__skip_metadata:
+			metadata = MetaData(genre="")
+		else:
+			metadata = self.__metadata_collector.collect_metadata(track.title, track.artist)
 		return lyrics, audio, metadata
 
 	def collect(self, tracks: typing.List[Track]):
