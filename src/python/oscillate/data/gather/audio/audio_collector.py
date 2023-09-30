@@ -22,3 +22,4 @@ class AudioCollector(ABC):
 	def collect_audio(self, title: str, artist: str) -> str:
 		filename = self._generate_filename(title, artist)
 		self._collect_audio(title, artist, os.path.join(self.__output_path, filename))
+		return filename
