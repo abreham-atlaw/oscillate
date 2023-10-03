@@ -203,7 +203,7 @@ class DataPreparer:
 			]
 			del X_encoder_row, X_decorder_row, y_row
 			gc.collect()
-			print(f"[+]Preparing: {(i+1)*100/df.shape[0] :.2f}% ...")
+			print(f"[+]Preparing: {(i+1)*100/df.shape[0] :.2f}% ...", end="\r")
 
 		self.__split_and_save(
 			X_encoder,
