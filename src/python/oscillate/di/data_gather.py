@@ -5,7 +5,7 @@ from oscillate.configs import GENIUS_APIKEY, MUSIXMATCH_APIKEY
 from oscillate.data.gather.metadata import MetadataCollector, MusixmatchMetadataCollector
 
 
-class DataProviders:
+class DataGatheringProviders:
 
 	@staticmethod
 	def provide_lyrics_collector() -> LyricsCollector:

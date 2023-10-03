@@ -3,7 +3,7 @@ import typing
 
 import pandas as pd
 
-from oscillate.di.data import DataProviders
+from oscillate.di.data_gather import DataGatheringProviders
 from .track import Track
 from oscillate.data.gather.metadata import MetaData
 
@@ -43,9 +43,9 @@ class DatasetCollector:
 			self.__header_lyrics
 		]
 
-		self.__audio_collector = DataProviders.provide_audio_collector()
-		self.__lyrics_collector = DataProviders.provide_lyrics_collector()
-		self.__metadata_collector = DataProviders.provide_metadata_collector()
+		self.__audio_collector = DataGatheringProviders.provide_audio_collector()
+		self.__lyrics_collector = DataGatheringProviders.provide_lyrics_collector()
+		self.__metadata_collector = DataGatheringProviders.provide_metadata_collector()
 		self.__audio_collector.set_outpath(self.__audio_path)
 		self.__skip_lyrics, self.__skip_audio, self.__skip_metadata = skip_lyrics, skip_audio, skip_metadata
 		self.__checkpoint = checkpoint
