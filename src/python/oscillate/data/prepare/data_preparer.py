@@ -35,7 +35,8 @@ class DataPreparer:
 			X_decoder_dir_name: str = "X_decoder",
 			y_dir_name: str = "y",
 
-			split_test_size: float = 0.2
+			split_test_size: float = 0.2,
+			checkpoint: typing.Optional[int] = None
 
 	):
 		self.__audio_padding_token = audio_padding_token
@@ -55,6 +56,7 @@ class DataPreparer:
 			y_dir_name
 
 		self.__split_test_size = split_test_size
+		self.__batch_size = checkpoint
 
 	@staticmethod
 	def __pad(arr: np.ndarray, block_size: int, pad_token: int) -> np.ndarray:
@@ -161,7 +163,7 @@ class DataPreparer:
 	def __split_and_save(self, X_encoder: np.ndarray, X_decoder: np.ndarray, y: np.ndarray, path: str):
 		data_len = X_encoder.shape[0]
 
-		indices = train_test_split(np.arange(data_len))
+		indices = train_test_split(np.arange(data_len), test_size=self.__split_test_size)
 
 		for role_indices, is_test in zip(indices, [False, True]):
 			self.__save(
@@ -171,6 +173,19 @@ class DataPreparer:
 				path=path,
 				is_test=is_test
 			)
+
+	def __checkpoint(self, X_encoder: np.ndarray, X_decoder: np.ndarray, y: np.ndarray, save_path: str) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
+		size = X_encoder.shape[0]
+		if self.__batch_size is None or size < self.__batch_size:
+			return X_encoder, X_decoder, y
+
+		to_save = [arr[:self.__batch_size] for arr in [X_encoder, X_decoder, y]]
+		self.__split_and_save(*to_save, path=save_path)
+		del to_save
+		gc.collect()
+
+		remaining = [arr[self.__batch_size:] for arr in [X_encoder, X_decoder, y]]
+		return self.__checkpoint(*remaining, save_path=save_path)
 
 	def start(
 			self,
@@ -202,6 +217,9 @@ class DataPreparer:
 				for (old, new) in zip([X_encoder, X_decoder, y], [X_encoder_row, X_decorder_row, y_row])
 			]
 			del X_encoder_row, X_decorder_row, y_row
+			gc.collect()
+
+			X_encoder, X_decoder, y = self.__checkpoint(X_encoder, X_decoder, y, save_path)
 			gc.collect()
 			print(f"[+]Preparing: {(i+1)*100/df.shape[0] :.2f}% ...", end="\r")
 
