@@ -24,10 +24,9 @@ class DataPreparer:
 			audio_file_format: str = "{}",
 
 			audio_padding_token: int = 0,
-			audio_block_size: int = 4096,
-
 			text_padding_token: int = 0,
-			text_block_size: int = 2048,
+			block_size: int = 2049,
+
 
 			train_dir_name: str = "train",
 			test_dir_name: str = "test",
@@ -40,10 +39,9 @@ class DataPreparer:
 
 	):
 		self.__audio_padding_token = audio_padding_token
-		self.__audio_block_size = audio_block_size
-
 		self.__text_padding_value = text_padding_token
-		self.__text_block_size = text_block_size
+
+		self.__block_size = block_size
 
 		self.__audio_encoder = audio_encoder
 		self.__text_encoder = text_encoder
@@ -85,7 +83,7 @@ class DataPreparer:
 		encoded_text = self.__encode_text(text)
 		encoded_text = self.__pad(
 			encoded_text,
-			self.__text_block_size,
+			self.__block_size,
 			self.__text_padding_value
 		)
 
@@ -94,7 +92,7 @@ class DataPreparer:
 			self.__shift_array(
 				encoded_audio,
 				i+1,
-				self.__audio_block_size,
+				self.__block_size,
 				self.__audio_padding_token
 			)
 			for i in range(encoded_audio.shape[0])
