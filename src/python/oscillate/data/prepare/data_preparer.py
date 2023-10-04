@@ -191,7 +191,10 @@ class DataPreparer:
 			save_path: str,
 			header_audio: str = "audio",
 			header_text: str = "text",
+			export_remaining: bool = True
 	):
+		if not export_remaining and self.__batch_size is None:
+			print("Warning: export_remaining set to false without batch_size. No exports will be made.")
 
 		self.__setup_save_path(save_path)
 
@@ -221,9 +224,10 @@ class DataPreparer:
 			gc.collect()
 			print(f"[+]Preparing: {(i+1)*100/df.shape[0] :.2f}% ...", end="\r")
 
-		self.__split_and_save(
-			X_encoder,
-			X_decoder,
-			y,
-			save_path
-		)
+		if export_remaining:
+			self.__split_and_save(
+				X_encoder,
+				X_decoder,
+				y,
+				save_path
+			)
