@@ -5,7 +5,9 @@ from tqdm import tqdm
 class TTATrainer:
 
     def __init__(self, model, loss_function, optimizer):
-        self.model = model
+        # Check if CUDA is available and set the device accordingly
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = model.to(self.device)
         self.loss_function = loss_function
         self.optimizer = optimizer
 
@@ -17,6 +19,7 @@ class TTATrainer:
             running_loss = 0.0
             pbar = tqdm(dataloader) if progress else dataloader
             for X_enc, X_dec, y in pbar:
+                X_enc, X_dec, y = X_enc.to(self.device), X_dec.to(self.device), y.to(self.device)
                 self.optimizer.zero_grad()
                 y_hat = self.model(X_enc, X_dec)
                 loss = self.loss_function(y_hat, y)
@@ -29,7 +32,6 @@ class TTATrainer:
             print(f"Epoch {epoch + 1} completed, loss: {epoch_loss}")
             train_losses.append(epoch_loss)
 
-            # Validate at the end of each epoch if a validation dataloader is provided
             if val_dataloader is not None:
                 val_loss = self.validate(val_dataloader)
                 val_losses.append(val_loss)
@@ -42,6 +44,7 @@ class TTATrainer:
         total_loss = 0
         with torch.no_grad():
             for inputs, targets in dataloader:
+                inputs, targets = inputs.to(self.device), targets.to(self.device)
                 outputs = self.model(inputs)
                 loss = self.loss_function(outputs, targets)
                 total_loss += loss.item()
