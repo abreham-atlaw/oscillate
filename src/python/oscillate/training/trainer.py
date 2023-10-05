@@ -43,9 +43,10 @@ class TTATrainer:
         self.model.eval()
         total_loss = 0
         with torch.no_grad():
-            for inputs, targets in dataloader:
-                inputs, targets = inputs.to(self.device), targets.to(self.device)
-                outputs = self.model(inputs)
-                loss = self.loss_function(outputs, targets)
+            for X_enc, X_dec, y in dataloader:
+                X_enc, X_dec, y = X_enc.to(self.device), X_dec.to(self.device), y.to(self.device)
+                y_hat = self.model(X_enc, X_dec)
+                loss = self.loss_function(y_hat, y)
                 total_loss += loss.item()
         return total_loss / len(dataloader)
+
