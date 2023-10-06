@@ -36,7 +36,10 @@ class TTATrainerTest(unittest.TestCase):
 		)
 
 		dataset = TTADataset(
-			root_dir="/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared/train",
+			root_dirs=[
+				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared/train",
+				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared1/train",
+			],
 			out_dtype=np.float32
 		)
 		dataloader = DataLoader(dataset, batch_size=8)

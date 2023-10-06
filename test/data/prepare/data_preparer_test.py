@@ -33,7 +33,7 @@ class DataPreparerTest(unittest.TestCase):
 
 		preparer.start(
 			df=df,
-			save_path="/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared",
+			save_path="/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared1",
 			header_text="text",
 			header_audio="audio",
 			export_remaining=False
