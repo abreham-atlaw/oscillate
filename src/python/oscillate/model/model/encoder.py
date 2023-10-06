@@ -31,7 +31,7 @@ class Encoder(nn.Module):
 		self.pad_token = pad_token
 
 	def forward(self, X: torch.Tensor):
-		pad_mask = torch.all(X == torch.zeros((X.shape[2],)), dim=2)
+		pad_mask = torch.all(X == torch.zeros((X.shape[2],), device=X.device), dim=2)
 		y = X + self.pos_encoding(X)
 		attn_output, attn_weights = self.mha(y, y, y, key_padding_mask=pad_mask)
 		y = self.add_norm(attn_output, y)
