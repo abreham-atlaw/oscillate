@@ -25,17 +25,16 @@ class Encoder(nn.Module):
 		self.block_size = block_size
 		self.emb_size = emb_size
 		self.pos_encoding = PositionalEncoding1D(emb_size)
-		self.mha = nn.MultiheadAttention(emb_size, mha_heads)
+		self.mha = nn.MultiheadAttention(emb_size, mha_heads, batch_first=True)
 		self.add_norm = AddNorm((block_size, emb_size))
 		self.ffn = FeedForwardNetwork(emb_size, ff_size)
 		self.pad_token = pad_token
 
 	def forward(self, X: torch.Tensor):
-		pad_mask = torch.transpose(torch.all(X == torch.zeros((X.shape[2],)), dim=2), 0, 1)
+		pad_mask = torch.all(X == torch.zeros((X.shape[2],)), dim=2)
 		y = X + self.pos_encoding(X)
 		attn_output, attn_weights = self.mha(y, y, y, key_padding_mask=pad_mask)
-		attn_output = attn_output.masked_fill(torch.isnan(attn_output), 0)
 		y = self.add_norm(attn_output, y)
 		ffn_output = self.ffn(y)
 		y = self.add_norm(ffn_output, y)
-		return y
+		return y, pad_mask

@@ -25,7 +25,7 @@ class TTAModelTest(unittest.TestCase):
 		model = TTAModel(
 			encoder=Encoder(
 				block_size=BLOCK_SIZE,
-				emb_size=ENCODER_EMB_SIZE,
+				input_emb_size=ENCODER_EMB_SIZE,
 				ff_size=256,
 				mha_heads=MHA_HEADS
 			),
@@ -71,7 +71,7 @@ class TTAModelTest(unittest.TestCase):
 		model = TTAModel(
 			encoder=Encoder(
 				block_size=BLOCK_SIZE,
-				emb_size=ENCODER_EMB_SIZE,
+				input_emb_size=ENCODER_EMB_SIZE,
 				ff_size=FF_SIZE,
 				mha_heads=ENCODER_HEADS
 			),

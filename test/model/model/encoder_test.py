@@ -16,7 +16,7 @@ class EncoderTest(unittest.TestCase):
 		X = F.pad(torch.rand((BATCH_SIZE, BLOCK_SIZE-2, EMB_SIZE)), (0, 0, 0, 2), "constant", value=0)
 
 		encoder = Encoder(
-			emb_size=EMB_SIZE,
+			input_emb_size=EMB_SIZE,
 			block_size=BLOCK_SIZE,
 			mha_heads=3,
 			ff_size=1024

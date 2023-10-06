@@ -13,7 +13,7 @@ class TTAModel(nn.Module):
 		self.enc_reshape = nn.Linear(self.encoder.emb_size, self.decoder.emb_size)
 
 	def forward(self, X_encoder, X_decoder):
-		y_encoder = self.encoder(X_encoder)
+		y_encoder, pad_mask = self.encoder(X_encoder)
 		y_encoder = self.enc_reshape(y_encoder)
-		y_decoder = self.decoder(X_decoder, y_encoder)
+		y_decoder = self.decoder(X_decoder, y_encoder, pad_mask)
 		return y_decoder
