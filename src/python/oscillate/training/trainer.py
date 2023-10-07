@@ -5,7 +5,6 @@ from tqdm import tqdm
 class TTATrainer:
 
     def __init__(self, model, loss_function, optimizer):
-        # Check if CUDA is available and set the device accordingly
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = model.to(self.device)
         self.loss_function = loss_function

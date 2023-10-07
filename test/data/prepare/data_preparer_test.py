@@ -26,7 +26,7 @@ class DataPreparerTest(unittest.TestCase):
 			block_size=512,
 			audio_dir="/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/audio",
 			audio_file_format="{}.wav",
-			checkpoint=2000
+			checkpoint=500
 		)
 
 		df = pd.read_csv("/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/metadata.csv", sep="|")
@@ -38,4 +38,3 @@ class DataPreparerTest(unittest.TestCase):
 			header_audio="audio",
 			export_remaining=False
 		)
-

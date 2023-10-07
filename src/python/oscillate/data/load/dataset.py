@@ -8,6 +8,8 @@ from torch.utils.data import Dataset
 
 import os
 
+from oscillate.data.load.processors.processor import TTAProcessor
+
 
 class TTADataset(Dataset):
 	def __init__(
@@ -17,13 +19,16 @@ class TTADataset(Dataset):
 			X_encoder_dir: str = "X_encoder",
 			X_decoder_dir: str = "X_decoder",
 			y_dir: str = "y",
-			out_dtype: typing.Type = np.float32
+			out_dtype: typing.Type = np.float32,
+			processors: typing.Optional[typing.List[TTAProcessor]] = None
 	):
 		self.__dtype = out_dtype
 		self.root_dirs = root_dirs
 		self.__X_decoder_dir = X_decoder_dir
 		self.__X_encoder_dir = X_encoder_dir
 		self.__y_dir = y_dir
+
+		self.__processors = processors
 
 		self.__files, self.__root_dir_map = self.__get_files()
 		self.cache = OrderedDict()
@@ -57,6 +62,11 @@ class TTADataset(Dataset):
 	def __load_array(self, path: str) -> np.ndarray:
 		return np.load(path).astype(self.__dtype)
 
+	def __process_dp(self, X_enc: np.ndarray, X_dec: np.ndarray, y: np.ndarray):
+		for processor in self.__processors:
+			X_enc, X_dec, y = processor.process(X_enc, X_dec, y)
+		return X_enc, X_dec, y
+
 	def __getitem__(self, idx):
 		file_idx = idx // self.data_points_per_file
 		data_idx = idx % self.data_points_per_file
@@ -74,4 +84,8 @@ class TTADataset(Dataset):
 
 			self.cache[file_idx] = (X_enc, X_dec, y)
 
-		return tuple([torch.from_numpy(x[data_idx]) for x in self.cache[file_idx]])
+		dp = self.__process_dp(*tuple([
+				x[data_idx]
+				for x in self.cache[file_idx]
+		]))
+		return tuple([torch.from_numpy(x) for x in dp])

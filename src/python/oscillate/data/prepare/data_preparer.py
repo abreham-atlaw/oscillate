@@ -26,6 +26,7 @@ class DataPreparer:
 			audio_padding_token: int = 0,
 			text_padding_token: int = 0,
 			block_size: int = 2049,
+			audio_vocab_size: int = 1024,
 
 
 			train_dir_name: str = "train",
@@ -55,6 +56,7 @@ class DataPreparer:
 
 		self.__split_test_size = split_test_size
 		self.__batch_size = checkpoint
+		self.__audio_vocab_size = audio_vocab_size
 
 	@staticmethod
 	def __pad(arr: np.ndarray, block_size: int, pad_token: int) -> np.ndarray:
@@ -64,13 +66,24 @@ class DataPreparer:
 
 	@staticmethod
 	def __shift_array(arr: np.ndarray, shift: int, block_size: int, pad_token: int) -> np.ndarray:
-		new_arr = np.zeros((block_size, arr.shape[1])) + pad_token
+		new_arr = np.zeros((block_size, arr.shape[1]), dtype=np.int8) + pad_token
 		new_arr[-min(shift, block_size):] = arr[max(shift-block_size, 0):shift]
 		return new_arr
 
 	@staticmethod
 	def __generate_filename() -> str:
 		return f"{datetime.now().timestamp()}.npy"
+
+	def __one_hot_encode(self, y: np.ndarray) -> np.ndarray:
+		y_sm = np.zeros((y.shape[0], self.__audio_vocab_size), dtype=np.int8)
+		y_sm[np.arange(y.shape[0]), y] = 1
+		return y_sm
+
+	def __one_hot_encode_sequence(self, y: np.ndarray) -> np.ndarray:
+		y_flat = y.flatten()
+		encoded = self.__one_hot_encode(y_flat)
+		encoded = encoded.reshape((*y.shape, self.__audio_vocab_size))
+		return encoded
 
 	def __encode_audio(self, audio: str) -> np.ndarray:
 		filepath = os.path.join(self.__audio_dir, self.__audio_file_format.format(audio))
@@ -87,7 +100,7 @@ class DataPreparer:
 			self.__text_padding_value
 		)
 
-		encoded_audio = self.__encode_audio(audio)
+		encoded_audio = self.__encode_audio(audio).astype(np.int8)
 		shifted_audios = np.stack([
 			self.__shift_array(
 				encoded_audio,
@@ -205,18 +218,12 @@ class DataPreparer:
 			(X_encoder_row, X_decorder_row), y_row = self.__prepare_row(audio, text)
 
 			if X_encoder is None:
+				X_encoder, X_decoder, y = X_encoder_row, X_decorder_row, y_row
+			else:
 				X_encoder, X_decoder, y = [
-					np.zeros((0,) + arr.shape[1:])
-					for arr in [
-						X_encoder_row,
-						X_decorder_row,
-						y_row
-					]
+					np.concatenate([old, new], axis=0)
+					for (old, new) in zip([X_encoder, X_decoder, y], [X_encoder_row, X_decorder_row, y_row])
 				]
-			X_encoder, X_decoder, y = [
-				np.concatenate([old, new], axis=0)
-				for (old, new) in zip([X_encoder, X_decoder, y], [X_encoder_row, X_decorder_row, y_row])
-			]
 			del X_encoder_row, X_decorder_row, y_row
 			gc.collect()
 

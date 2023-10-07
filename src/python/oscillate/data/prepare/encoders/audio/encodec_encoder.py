@@ -27,7 +27,7 @@ class EncodecEncoder(Encoder):
 		tokens = tokens[0][0].numpy().squeeze()
 		eos_token = np.zeros((tokens.shape[0], 1)) + self.__eos_token
 		tokens = np.transpose(np.concatenate((tokens, eos_token), axis=1))
-		return tokens
+		return tokens.astype(np.int8)
 
 	def get_embedding_size(self) -> int:
 		return int(self.__model.bandwidth * 4/3)

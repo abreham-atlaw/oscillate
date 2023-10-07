@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from torch.optim import Adam
 
 from oscillate.data.load.dataset import TTADataset
+from oscillate.data.load.processors.one_hot_processor import OneHotProcessor
 from oscillate.model.model.decoder import Decoder
 from oscillate.model.model.encoder import Encoder
 from oscillate.model.model.model import TTAModel
@@ -40,9 +41,12 @@ class TTATrainerTest(unittest.TestCase):
 				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared/train",
 				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared1/train",
 			],
-			out_dtype=np.float32
+			out_dtype=np.float32,
+			processors=[
+				OneHotProcessor(1024)
+			]
 		)
-		dataloader = DataLoader(dataset, batch_size=8)
+		dataloader = DataLoader(dataset, batch_size=64)
 
 		loss_function = nn.CrossEntropyLoss()
 		optimizer = Adam(model.parameters(), lr=0.001)
