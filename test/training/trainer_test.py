@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.optim import Adam
@@ -20,20 +21,25 @@ class TTATrainerTest(unittest.TestCase):
 		ENCODER_EMB_SIZE = 50
 		DECODER_EMB_SIZE = 16
 		MHA_HEADS = 2
+		DTYPE = torch.float32
+		NP_DTYPE = np.float32
 
 		model = TTAModel(
 			encoder=Encoder(
 				block_size=BLOCK_SIZE,
 				emb_size=ENCODER_EMB_SIZE,
 				ff_size=256,
-				mha_heads=MHA_HEADS
+				mha_heads=MHA_HEADS,
+				dtype=DTYPE
 			),
 			decoder=Decoder(
 				emb_size=DECODER_EMB_SIZE,
 				block_size=BLOCK_SIZE,
 				num_heads=MHA_HEADS,
-				ff_size=256
-			)
+				ff_size=256,
+				dtype=DTYPE
+			),
+			dtype=DTYPE
 		)
 
 		dataset = TTADataset(
@@ -41,7 +47,7 @@ class TTATrainerTest(unittest.TestCase):
 				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared/train",
 				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared1/train",
 			],
-			out_dtype=np.float32,
+			out_dtype=NP_DTYPE,
 			processors=[
 				OneHotProcessor(1024)
 			]
