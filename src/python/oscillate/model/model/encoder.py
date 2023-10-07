@@ -28,7 +28,7 @@ class Encoder(nn.Module):
 		self.dtype = dtype
 		self.pos_encoding = PositionalEncoding1D(emb_size)
 		self.mha = nn.MultiheadAttention(emb_size, mha_heads, batch_first=True, dtype=dtype)
-		self.add_norm = AddNorm((block_size, emb_size))
+		self.add_norm = AddNorm((block_size, emb_size), dtype=dtype)
 		self.ffn = FeedForwardNetwork(emb_size, ff_size, dtype=dtype)
 		self.pad_token = pad_token
 
