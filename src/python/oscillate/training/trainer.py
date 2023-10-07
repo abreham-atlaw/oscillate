@@ -6,6 +6,9 @@ class TTATrainer:
 
     def __init__(self, model, loss_function, optimizer):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if torch.cuda.device_count() > 1:
+            print("Found use", torch.cuda.device_count(), "GPUs.")
+            model = torch.nn.DataParallel(model)
         self.model = model.to(self.device)
         self.loss_function = loss_function
         self.optimizer = optimizer
