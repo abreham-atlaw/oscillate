@@ -19,10 +19,10 @@ class TTADataset(Dataset):
 			X_encoder_dir: str = "X_encoder",
 			X_decoder_dir: str = "X_decoder",
 			y_dir: str = "y",
-			out_dtype: typing.Type = np.float32,
+			out_dtypes: typing.Type = np.float32,
 			processors: typing.Optional[typing.List[TTAProcessor]] = None
 	):
-		self.__dtype = out_dtype
+		self.__dtype = out_dtypes
 		self.root_dirs = root_dirs
 		self.__X_decoder_dir = X_decoder_dir
 		self.__X_encoder_dir = X_encoder_dir

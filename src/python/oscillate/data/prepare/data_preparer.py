@@ -26,7 +26,7 @@ class DataPreparer:
 			audio_padding_token: int = 0,
 			text_padding_token: int = 0,
 			block_size: int = 2049,
-			audio_vocab_size: int = 1024,
+			audio_vocab_size: int = 2048,
 
 
 			train_dir_name: str = "train",
@@ -66,7 +66,7 @@ class DataPreparer:
 
 	@staticmethod
 	def __shift_array(arr: np.ndarray, shift: int, block_size: int, pad_token: int) -> np.ndarray:
-		new_arr = np.zeros((block_size, arr.shape[1]), dtype=np.int8) + pad_token
+		new_arr = np.zeros((block_size, arr.shape[1]), dtype=np.int16) + pad_token
 		new_arr[-min(shift, block_size):] = arr[max(shift-block_size, 0):shift]
 		return new_arr
 
@@ -75,7 +75,7 @@ class DataPreparer:
 		return f"{datetime.now().timestamp()}.npy"
 
 	def __one_hot_encode(self, y: np.ndarray) -> np.ndarray:
-		y_sm = np.zeros((y.shape[0], self.__audio_vocab_size), dtype=np.int8)
+		y_sm = np.zeros((y.shape[0], self.__audio_vocab_size), dtype=np.int16)
 		y_sm[np.arange(y.shape[0]), y] = 1
 		return y_sm
 
@@ -100,7 +100,7 @@ class DataPreparer:
 			self.__text_padding_value
 		)
 
-		encoded_audio = self.__encode_audio(audio).astype(np.int8)
+		encoded_audio = self.__encode_audio(audio).astype(np.int16)
 		shifted_audios = np.stack([
 			self.__shift_array(
 				encoded_audio,

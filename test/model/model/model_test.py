@@ -18,10 +18,11 @@ class TTAModelTest(unittest.TestCase):
 	def test_functionality(self):
 		BLOCK_SIZE = 512
 		ENCODER_EMB_SIZE = 6
-		DECODER_EMB_SIZE = 8
+		DECODER_EMB_SIZE = 16
+		DECODER_INPUT_EMB_SIZE = 8
 		MHA_HEADS = 2
 		BATCH_SIZE = 16
-		DECODER_VOCAL_SIZE = 1024
+		DECODER_VOCAB_SIZE = 1024
 
 		model = TTAModel(
 			encoder=Encoder(
@@ -32,19 +33,20 @@ class TTAModelTest(unittest.TestCase):
 			),
 			decoder=Decoder(
 				emb_size=DECODER_EMB_SIZE,
+				input_emb_size=DECODER_INPUT_EMB_SIZE,
 				block_size=BLOCK_SIZE,
 				num_heads=MHA_HEADS,
 				ff_size=256
 			),
-			decoder_vocab_size=DECODER_VOCAL_SIZE
+			decoder_vocab_size=DECODER_VOCAB_SIZE
 		)
 
 		X_encoder = torch.rand((BATCH_SIZE, BLOCK_SIZE, ENCODER_EMB_SIZE))
-		X_decoder = torch.rand((BATCH_SIZE, BLOCK_SIZE, DECODER_EMB_SIZE))
+		X_decoder = torch.randint(0, 1024, (BATCH_SIZE, BLOCK_SIZE, DECODER_INPUT_EMB_SIZE))
 
 		y = model(X_encoder, X_decoder)
 
-		self.assertEqual(y.shape, (*X_decoder.shape, DECODER_VOCAL_SIZE))
+		self.assertEqual(y.shape, (*X_decoder.shape[:2], DECODER_EMB_SIZE, DECODER_VOCAB_SIZE))
 
 	def test_load_and_run(self):
 		def get_X_enc(text):

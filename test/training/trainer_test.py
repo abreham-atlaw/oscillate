@@ -19,7 +19,8 @@ class TTATrainerTest(unittest.TestCase):
 	def test_functionality(self):
 		BLOCK_SIZE = 512
 		ENCODER_EMB_SIZE = 50
-		DECODER_EMB_SIZE = 16
+		DECODER_EMB_SIZE = 128
+		DECODER_INPUT_EMB_SIZE = 16
 		MHA_HEADS = 2
 		DTYPE = torch.float32
 		NP_DTYPE = np.float32
@@ -30,13 +31,15 @@ class TTATrainerTest(unittest.TestCase):
 				emb_size=ENCODER_EMB_SIZE,
 				ff_size=256,
 				mha_heads=MHA_HEADS,
-				dtype=DTYPE
+				dtype=DTYPE,
 			),
 			decoder=Decoder(
 				emb_size=DECODER_EMB_SIZE,
+				input_emb_size=DECODER_INPUT_EMB_SIZE,
 				block_size=BLOCK_SIZE,
 				num_heads=MHA_HEADS,
 				ff_size=256,
+				vocab_size=2048,
 				dtype=DTYPE
 			),
 			dtype=DTYPE
@@ -47,12 +50,12 @@ class TTATrainerTest(unittest.TestCase):
 				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared/train",
 				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared1/train",
 			],
-			out_dtype=NP_DTYPE,
+			out_dtypes=NP_DTYPE,
 			processors=[
 				OneHotProcessor(1024)
 			]
 		)
-		dataloader = DataLoader(dataset, batch_size=64)
+		dataloader = DataLoader(dataset, batch_size=4)
 
 		loss_function = nn.CrossEntropyLoss()
 		optimizer = Adam(model.parameters(), lr=0.001)
