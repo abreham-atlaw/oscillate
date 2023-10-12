@@ -21,6 +21,7 @@ class TTATrainerTest(unittest.TestCase):
 		ENCODER_EMB_SIZE = 50
 		DECODER_EMB_SIZE = 128
 		DECODER_INPUT_EMB_SIZE = 16
+		DECODER_VOCAB_SIZE = 1024
 		MHA_HEADS = 2
 		DTYPE = torch.float32
 		NP_DTYPE = np.float32
@@ -39,7 +40,7 @@ class TTATrainerTest(unittest.TestCase):
 				block_size=BLOCK_SIZE,
 				num_heads=MHA_HEADS,
 				ff_size=256,
-				vocab_size=2048,
+				vocab_size=DECODER_VOCAB_SIZE,
 				dtype=DTYPE
 			),
 			dtype=DTYPE
@@ -52,7 +53,7 @@ class TTATrainerTest(unittest.TestCase):
 			],
 			out_dtypes=NP_DTYPE,
 			processors=[
-				OneHotProcessor(1024)
+				OneHotProcessor(DECODER_VOCAB_SIZE)
 			]
 		)
 		dataloader = DataLoader(dataset, batch_size=4)

@@ -60,10 +60,15 @@ class TTAModelTest(unittest.TestCase):
 		BPEMB_EMB_SIZE = 50
 		BLOCK_SIZE = 512
 		ENCODER_EMB_SIZE = 50
-		DECODER_EMB_SIZE = 32
-		ENCODER_HEADS = 10
-		DECODER_HEADS = 8
+		DECODER_INPUT_EMB_SIZE = 32
+		DECODER_EMB_SIZE = 64
+		ENCODER_HEADS = 50
+		DECODER_HEADS = 32
 		FF_SIZE = 1024
+		DECODER_VOCAB_SIZE = 2048
+
+		DTYPE = torch.float32
+		NP_DTYPE = np.float32
 
 		text_encoder = BpembEncoder(lang=BPEMB_LANG, emb_size=BPEMB_EMB_SIZE)
 		encodec_model = EncodecModel.encodec_model_24khz()
@@ -77,14 +82,20 @@ class TTAModelTest(unittest.TestCase):
 				block_size=BLOCK_SIZE,
 				emb_size=ENCODER_EMB_SIZE,
 				ff_size=FF_SIZE,
-				mha_heads=ENCODER_HEADS
+				mha_heads=ENCODER_HEADS,
+				dtype=DTYPE
 			),
 			decoder=Decoder(
 				emb_size=DECODER_EMB_SIZE,
+				input_emb_size=DECODER_INPUT_EMB_SIZE,
 				block_size=BLOCK_SIZE,
 				num_heads=DECODER_HEADS,
-				ff_size=FF_SIZE
-			)
+				ff_size=FF_SIZE,
+				dtype=DTYPE,
+				vocab_size=DECODER_VOCAB_SIZE
+			),
+			dtype=DTYPE,
+			decoder_vocab_size=DECODER_VOCAB_SIZE
 		)
 		model.load_state_dict(torch.load('/home/abreham/Projects/TeamProjects/Oscillate/temp/models/model.pth', map_location=torch.device('cpu')))
 		model.eval()
@@ -92,14 +103,15 @@ class TTAModelTest(unittest.TestCase):
 		with torch.no_grad():
 			for _ in range(512):
 				y = model(X_enc, X_dec)
-				y[y < 0] = 0
-				X_dec = y
+				X_dec = torch.argmax(y, dim=-1)
+		X_dec = X_dec - 1024
+		X_dec[X_dec < 0] = 0
 		audio_codes = [
 			(
 				torch.from_numpy(
 					np.round(
 						np.transpose(
-							y[0].detach().numpy()
+							X_dec[0].detach().numpy()
 						)
 					).astype(int),
 				).unsqueeze(0),
