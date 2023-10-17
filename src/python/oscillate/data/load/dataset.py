@@ -28,6 +28,8 @@ class TTADataset(Dataset):
 		self.__X_encoder_dir = X_encoder_dir
 		self.__y_dir = y_dir
 
+		if processors is None:
+			processors = []
 		self.__processors = processors
 
 		self.__files, self.__root_dir_map = self.__get_files()

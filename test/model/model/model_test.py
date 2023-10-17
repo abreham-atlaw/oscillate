@@ -46,26 +46,26 @@ class TTAModelTest(unittest.TestCase):
 
 		y = model(X_encoder, X_decoder)
 
-		self.assertEqual(y.shape, (*X_decoder.shape[:2], DECODER_EMB_SIZE, DECODER_VOCAB_SIZE))
+		self.assertEqual(y.shape, (X_decoder.shape[0], DECODER_INPUT_EMB_SIZE, DECODER_VOCAB_SIZE))
 
 	def test_load_and_run(self):
 		def get_X_enc(text):
-			X = text_encoder.encode("The quick brown fox jumps over the lazy dog")
+			X = text_encoder.encode("Hello. How are you?")
 			X = np.pad(X, pad_width=((0, 512 - X.shape[0]), (0, 0)), mode="constant", constant_values=0)
 			return torch.from_numpy(X).unsqueeze(0)
 
-		ENCODEC_BANDWIDTH = 24
+		ENCODEC_BANDWIDTH = 3
 		ENCODEC_EOS_TOKEN = 0
 		BPEMB_LANG = "en"
 		BPEMB_EMB_SIZE = 50
 		BLOCK_SIZE = 512
 		ENCODER_EMB_SIZE = 50
-		DECODER_INPUT_EMB_SIZE = 32
-		DECODER_EMB_SIZE = 64
+		DECODER_INPUT_EMB_SIZE = 4
+		DECODER_EMB_SIZE = 256
 		ENCODER_HEADS = 50
-		DECODER_HEADS = 32
+		DECODER_HEADS = 128
 		FF_SIZE = 1024
-		DECODER_VOCAB_SIZE = 2048
+		DECODER_VOCAB_SIZE = 1024
 
 		DTYPE = torch.float32
 		NP_DTYPE = np.float32
@@ -75,7 +75,7 @@ class TTAModelTest(unittest.TestCase):
 		encodec_model.set_target_bandwidth(ENCODEC_BANDWIDTH)
 
 		X_enc = get_X_enc("The quick brown fox jumps over the lazy dog")
-		X_dec = torch.zeros((1, 512, 32))
+		X_dec = torch.zeros((1, 512, DECODER_INPUT_EMB_SIZE))
 
 		model = TTAModel(
 			encoder=Encoder(
@@ -99,19 +99,25 @@ class TTAModelTest(unittest.TestCase):
 		)
 		model.load_state_dict(torch.load('/home/abreham/Projects/TeamProjects/Oscillate/temp/models/model.pth', map_location=torch.device('cpu')))
 		model.eval()
+		out = torch.zeros_like(X_dec)[0]
 
 		with torch.no_grad():
-			for _ in range(512):
+			for i in range(64):
 				y = model(X_enc, X_dec)
-				X_dec = torch.argmax(y, dim=-1)
-		X_dec = X_dec - 1024
-		X_dec[X_dec < 0] = 0
+				out[i] = torch.argmax(y, dim=-1)[0, -1]
+				X_dec[0, 512-(i+1):] = out[:i+1]
+				# out = torch.argmax(y, dim=-1)[0]
+				# X_dec[0] = out
+
+		X_np = out.detach().numpy()
+		X_np = X_np[np.any(X_np != 0, axis=1)]
+
 		audio_codes = [
 			(
 				torch.from_numpy(
 					np.round(
 						np.transpose(
-							X_dec[0].detach().numpy()
+							X_np
 						)
 					).astype(int),
 				).unsqueeze(0),

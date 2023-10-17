@@ -19,10 +19,12 @@ class TTATrainerTest(unittest.TestCase):
 	def test_functionality(self):
 		BLOCK_SIZE = 512
 		ENCODER_EMB_SIZE = 50
-		DECODER_EMB_SIZE = 128
-		DECODER_INPUT_EMB_SIZE = 16
+		DECODER_INPUT_EMB_SIZE = 4
+		DECODER_EMB_SIZE = 64
+		ENCODER_HEADS = 50
+		DECODER_HEADS = 32
+		FF_SIZE = 1024
 		DECODER_VOCAB_SIZE = 1024
-		MHA_HEADS = 2
 		DTYPE = torch.float32
 		NP_DTYPE = np.float32
 
@@ -30,31 +32,29 @@ class TTATrainerTest(unittest.TestCase):
 			encoder=Encoder(
 				block_size=BLOCK_SIZE,
 				emb_size=ENCODER_EMB_SIZE,
-				ff_size=256,
-				mha_heads=MHA_HEADS,
-				dtype=DTYPE,
+				ff_size=FF_SIZE,
+				mha_heads=ENCODER_HEADS,
+				dtype=DTYPE
 			),
 			decoder=Decoder(
 				emb_size=DECODER_EMB_SIZE,
 				input_emb_size=DECODER_INPUT_EMB_SIZE,
 				block_size=BLOCK_SIZE,
-				num_heads=MHA_HEADS,
-				ff_size=256,
-				vocab_size=DECODER_VOCAB_SIZE,
-				dtype=DTYPE
+				num_heads=DECODER_HEADS,
+				ff_size=FF_SIZE,
+				dtype=DTYPE,
+				vocab_size=DECODER_VOCAB_SIZE
 			),
-			dtype=DTYPE
+			dtype=DTYPE,
+			decoder_vocab_size=DECODER_VOCAB_SIZE
 		)
 
 		dataset = TTADataset(
 			root_dirs=[
 				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared/train",
-				"/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared1/train",
+				# "/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared1/train",
 			],
 			out_dtypes=NP_DTYPE,
-			processors=[
-				OneHotProcessor(DECODER_VOCAB_SIZE)
-			]
 		)
 		dataloader = DataLoader(dataset, batch_size=4)
 

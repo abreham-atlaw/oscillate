@@ -17,7 +17,9 @@ from oscillate.model.model.model import TTAModel
 class DataPreparerTest(unittest.TestCase):
 
 	def test_functionality(self):
-		audio_encoder = EncodecEncoder()
+		audio_encoder = EncodecEncoder(
+			bandwidth=3
+		)
 		text_encoder = BpembEncoder()
 
 		preparer = DataPreparer(
@@ -26,14 +28,15 @@ class DataPreparerTest(unittest.TestCase):
 			block_size=512,
 			audio_dir="/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/audio",
 			audio_file_format="{}.wav",
-			checkpoint=500
+			checkpoint=500,
+			audio_vocab_size=1024
 		)
 
 		df = pd.read_csv("/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/metadata.csv", sep="|")
 
 		preparer.start(
 			df=df,
-			save_path="/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared1",
+			save_path="/home/abreham/Projects/TeamProjects/Oscillate/temp/Data/dummy/prepared",
 			header_text="text",
 			header_audio="audio",
 			export_remaining=False

@@ -26,7 +26,7 @@ class DataPreparer:
 			audio_padding_token: int = 0,
 			text_padding_token: int = 0,
 			block_size: int = 2049,
-			audio_vocab_size: int = 2048,
+			audio_vocab_size: int = 1024,
 
 
 			train_dir_name: str = "train",
@@ -121,7 +121,8 @@ class DataPreparer:
 			axis=0
 		)
 
-		y = shifted_audios[1:]
+		y = shifted_audios[1:, -1]
+		y = self.__one_hot_encode_sequence(y)
 		return (X_encoder, X_decoder), y
 
 	def __setup_save_path(

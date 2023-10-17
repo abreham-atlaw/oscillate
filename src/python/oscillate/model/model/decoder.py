@@ -7,7 +7,7 @@ from oscillate.model.layers.ffn import FeedForwardNetwork
 
 class Decoder(nn.Module):
 
-	def __init__(self, input_emb_size: int, emb_size: int, block_size, num_heads, ff_size, vocab_size=2048, dtype=torch.float32):
+	def __init__(self, input_emb_size: int, emb_size: int, block_size, num_heads, ff_size, vocab_size=1024, dtype=torch.float32):
 		if emb_size % input_emb_size != 0:
 			raise ValueError(f"emb_size should be a multiple of input_emb_size. Got {emb_size} and {input_emb_size}")
 		super().__init__()

@@ -20,6 +20,8 @@ class TTAModel(nn.Module):
 		y_encoder, pad_mask = self.encoder(X_encoder)
 		y_encoder = self.enc_reshape(y_encoder)
 		y_decoder = self.decoder(X_decoder, y_encoder, pad_mask)
+		y_decoder = y_decoder[:, -1]
 		y = self.dec_reshape(y_decoder)
-		y = self.softmax(y).reshape((*X_decoder.shape, self.decoder_vocab_size))
+		y = y.reshape((X_decoder.shape[0], self.decoder.input_emb_size, self.decoder_vocab_size))
+		y = self.softmax(y)
 		return y
