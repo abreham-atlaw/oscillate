@@ -210,6 +210,8 @@ class DataPreparer:
 		if not export_remaining and self.__batch_size is None:
 			print("Warning: export_remaining set to false without batch_size. No exports will be made.")
 
+		df = df.dropna()
+
 		self.__setup_save_path(save_path)
 
 		X_encoder, X_decoder, y = None, None, None
